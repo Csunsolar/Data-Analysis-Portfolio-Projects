@@ -3,16 +3,37 @@ FROM c_deaths
 ORDER BY 1,2;
 
 
+SELECT SUM(new_cases) AS total_cases, SUM(CAST(new_deaths AS INT)) AS total_deaths, (SUM(CAST(new_deaths AS INT))/SUM(new_cases)*100) AS death_percentage
+FROM c_deaths
+WHERE continent IS NOT NULL;
+
+
+SELECT location, SUM(new_deaths) AS totaldeathcount
+FROM c_deaths
+WHERE continent IS NULL
+AND location NOT IN ('%income%', 'World', 'European Union', 'International')
+AND location NOT LIKE '%income%'
+GROUP BY 1
+ORDER BY 2 DESC;
+
+
+-- Comparing the max number of total_cases vs population and calculating the percent of population that has been infected.
+SELECT location, population, MAX(total_cases) AS MaxInfectedCount, (MAX(total_cases)/population)*100 AS Percent_of_population_Infected
+FROM c_deaths
+GROUP BY 1, 2
+ORDER BY 4 DESC;
+
+
+
+SELECT location, population, date, MAX(total_cases) AS MaxInfectedCount, (MAX(total_cases)/population)*100 AS Percent_of_population_Infected
+FROM c_deaths
+GROUP BY 1, 2, 3
+ORDER BY 1, 5 DESC;
+
+
 -- Comparing the total_cases vs total_deaths and calculating percentage of deaths per case.
 -- -- The calculation would show the chance of dying (%) if infected with COVID-19 in the specified country below. 
 SELECT location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS Deaths_per_Cases
-FROM c_deaths
-WHERE location like 'United States'
-ORDER BY 1,2;
-
-
--- Comparing the total_cases vs population and calculating case per population size.
-SELECT location, date, total_cases, population, (total_cases/population)*100 AS cases_per_population
 FROM c_deaths
 WHERE location like 'United States'
 ORDER BY 1,2;
@@ -23,6 +44,7 @@ SELECT location, MAX(total_cases) AS MaxCases, population, MAX((total_cases/popu
 FROM c_deaths
 GROUP BY 1,3
 ORDER BY 4 DESC;
+
 
 -- Here we are finding the countries' highest ratio of death to population while showing the highest death count per country.
 SELECT location, MAX(total_deaths) AS HighestDeathCount, population, MAX(total_deaths/population)*100 AS DeathRatePercentage
